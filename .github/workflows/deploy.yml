@@ -1,6 +1,5 @@
 name: Deploy to Railway
 
-# Trigger workflow on push to main or dev branches
 on:
   push:
     branches:
@@ -10,33 +9,27 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+
     steps:
-      # 1. Checkout code
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      # 2. Set up Node.js (needed for Railway CLI)
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
           node-version: '20'
 
-      # 3. Install Railway CLI
       - name: Install Railway CLI
-        run: npm install -g railway
+        run: npm install -g @railway/cli
 
-      # 4. Login to Railway
-      - name: Login to Railway
-        run: railway login --apiKey ${{ secrets.RAILWAY_TOKEN }}
-
-      # 5. Deploy app to Railway
       - name: Deploy to Railway
         run: railway up
         env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
           OWM_API_KEY: ${{ secrets.OWM_API_KEY }}
 
-      # 6. Optional: show Railway project status (URL, deployed version)
       - name: Railway Status
         run: railway status
         env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
           OWM_API_KEY: ${{ secrets.OWM_API_KEY }}

@@ -1,7 +1,9 @@
 import gradio as gr
 import requests
+import os
 
-SERVER_URL = "http://127.0.0.1:8000/rpc"
+# If you have a real MCP server, replace this URL with its Railway URL
+SERVER_URL = os.getenv("SERVER_URL", "https://example-mcp-server.up.railway.app/rpc")
 
 def get_weather(city):
     try:
@@ -18,7 +20,6 @@ def get_weather(city):
     except Exception as e:
         return f"Unexpected error: {e}"
 
-# Cities for the dropdown
 cities = [
     "Delhi", "Mumbai", "Hyderabad", "Bangalore", "Chennai", "Kolkata",
     "Pune", "Jaipur", "Lucknow", "Ahmedabad", "Kochi", "Visakhapatnam",
@@ -27,7 +28,6 @@ cities = [
     "Moscow", "Los Angeles", "San Francisco", "Chicago"
 ]
 
-# Build Gradio interface
 iface = gr.Interface(
     fn=get_weather,
     inputs=gr.Dropdown(cities, label="Select a city"),
@@ -36,5 +36,7 @@ iface = gr.Interface(
     description="Select a city and get real-time weather from your MCP server!"
 )
 
-# Launch GUI in browser
-iface.launch(inbrowser=True)
+if __name__ == "__main__":
+    # Railway sets PORT environment variable automatically
+    port = int(os.environ.get("PORT", 7860))
+    iface.launch(server_name="0.0.0.0", server_port=port)

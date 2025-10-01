@@ -35,7 +35,7 @@ jobs:
 
       # 5. Show Railway deployment status
       - name: Railway Status
-        run: railway status --service weather_mcp
+        run: railway status
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
-          OWM_API_KEY: ${{ secrets.OWM_API_KEY }}
+

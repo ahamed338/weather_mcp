@@ -1,6 +1,5 @@
 name: Deploy Weather App to Railway
 
-# Trigger workflow on push to main or dev branches
 on:
   push:
     branches:
@@ -12,30 +11,24 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. Checkout code
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      # 2. Set up Node.js (required for Railway CLI)
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
           node-version: '20'
 
-      # 3. Install new Railway CLI
       - name: Install Railway CLI
         run: npm install -g @railway/cli
 
-      # 4. Deploy the weather_mcp service to Railway
       - name: Deploy Weather App to Railway
         run: railway up --service weather_mcp
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
           OWM_API_KEY: ${{ secrets.OWM_API_KEY }}
 
-      # 5. Show Railway deployment status
       - name: Railway Status
         run: railway status
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
-

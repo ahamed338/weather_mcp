@@ -2,23 +2,43 @@ import gradio as gr
 import requests
 import os
 
-# If you have a real MCP server, replace this URL with its Railway URL
-SERVER_URL = os.getenv("SERVER_URL", "https://example-mcp-server.up.railway.app/rpc")
+# OpenWeatherMap API key from environment
+API_KEY = os.getenv("OWM_API_KEY")
+if not API_KEY:
+    raise ValueError("Please set the OWM_API_KEY environment variable")
 
 def get_weather(city):
     try:
-        req = {"method": "get_weather", "params": {"city": city}}
-        resp = requests.post(SERVER_URL, json=req, timeout=5).json()
-        result = resp.get("result")
-        if not result:
-            return "No response from server."
-        if "error" in result:
-            return f"Error: {result['error']}"
-        return f"Weather in {result['city']}: {result['temperature']}°C, {result['condition'].capitalize()}"
+        url = f"http://api.openweathermap.org/data/2.5/weather?q={city}&appid={API_KEY}&units=metric"
+        resp = requests.get(url, timeout=5).json()
+
+        if resp.get("cod") != 200:
+            return f"<div style='color:red; font-weight:bold;'>Error: {resp.get('message', 'City not found')}</div>"
+
+        temp = resp["main"]["temp"]
+        condition = resp["weather"][0]["description"].capitalize()
+
+        # HTML card
+        html = f"""
+        <div style="
+            background: linear-gradient(to right, #4facfe, #00f2fe);
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            color: white;
+            width: 300px;
+            font-family: Arial, sans-serif;
+        ">
+            <h2>{city}</h2>
+            <p style="font-size: 1.5em;">{temp}°C</p>
+            <p style="font-size: 1.2em;">{condition}</p>
+        </div>
+        """
+        return html
     except requests.exceptions.RequestException as e:
-        return f"Server error: {e}"
+        return f"<div style='color:red;'>Server error: {e}</div>"
     except Exception as e:
-        return f"Unexpected error: {e}"
+        return f"<div style='color:red;'>Unexpected error: {e}</div>"
 
 cities = [
     "Delhi", "Mumbai", "Hyderabad", "Bangalore", "Chennai", "Kolkata",
@@ -31,12 +51,11 @@ cities = [
 iface = gr.Interface(
     fn=get_weather,
     inputs=gr.Dropdown(cities, label="Select a city"),
-    outputs="text",
+    outputs=gr.HTML(),  # Using HTML output for styling
     title="Weather Robot",
-    description="Select a city and get real-time weather from your MCP server!"
+    description="Select a city and get real-time weather!"
 )
 
 if __name__ == "__main__":
-    # Railway sets PORT environment variable automatically
     port = int(os.environ.get("PORT", 7860))
     iface.launch(server_name="0.0.0.0", server_port=port)

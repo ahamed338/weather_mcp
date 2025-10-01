@@ -1,4 +1,4 @@
-name: Deploy to Railway
+name: Deploy Weather App to Railway
 
 # Trigger workflow on push to main or dev branches
 on:
@@ -26,16 +26,16 @@ jobs:
       - name: Install Railway CLI
         run: npm install -g @railway/cli
 
-      # 4. Deploy the specific service to Railway
+      # 4. Deploy the weather_mcp service to Railway
       - name: Deploy Weather App to Railway
-        run: railway up --service weather-app
+        run: railway up --service weather_mcp
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
           OWM_API_KEY: ${{ secrets.OWM_API_KEY }}
 
       # 5. Show Railway deployment status
       - name: Railway Status
-        run: railway status --service weather-app
+        run: railway status --service weather_mcp
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
           OWM_API_KEY: ${{ secrets.OWM_API_KEY }}
